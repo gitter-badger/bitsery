@@ -47,7 +47,7 @@ namespace bitsery {
             using UT = typename std::make_unsigned<T>::type;
             return !m_scratch
                    ? directRead(&v, 1)
-                   : readBits(reinterpret_cast<UT &>(v), BITS_SIZE<T>);
+                   : readBits(reinterpret_cast<UT &>(v), BITS_SIZE<T>::value);
         }
 
         template<size_t SIZE, typename T>
@@ -62,7 +62,7 @@ namespace bitsery {
                 //todo improve implementation
                 const auto end = buf + count;
                 for (auto it = buf; it != end; ++it) {
-                    if (!readBits(reinterpret_cast<UT &>(*it), BITS_SIZE<T>))
+                    if (!readBits(reinterpret_cast<UT &>(*it), BITS_SIZE<T>::value))
                         return false;
                 }
             }
@@ -73,7 +73,7 @@ namespace bitsery {
         template<typename T>
         bool readBits(T &v, size_t bitsCount) {
             static_assert(std::is_integral<T>() && std::is_unsigned<T>(), "");
-            assert(bitsCount <= BITS_SIZE<T>);
+            assert(bitsCount <= BITS_SIZE<T>::value);
 
             const auto bytesRequired = bitsCount > m_scratchBits
                                        ? ((bitsCount - 1 - m_scratchBits) >> 3) + 1u
@@ -87,7 +87,7 @@ namespace bitsery {
         bool align() {
             if (m_scratchBits) {
                 SCRATCH_TYPE tmp{};
-                readBitsInternal(tmp, BITS_SIZE<value_type> - m_scratchBits);
+                readBitsInternal(tmp, BITS_SIZE<value_type>::value - m_scratchBits);
                 return tmp == 0;
             }
             return true;
@@ -117,7 +117,7 @@ namespace bitsery {
             auto bitsLeft = size;
             T res{};
             while (bitsLeft > 0) {
-                auto bits = std::min(bitsLeft, BITS_SIZE<value_type>);
+                auto bits = std::min(bitsLeft, BITS_SIZE<value_type>::value);
                 if (m_scratchBits < bits) {
                     value_type tmp;
 
@@ -125,7 +125,7 @@ namespace bitsery {
                     std::advance(_pos, 1);
 
                     m_scratch |= static_cast<SCRATCH_TYPE>(tmp) << m_scratchBits;
-                    m_scratchBits += BITS_SIZE<value_type>;
+                    m_scratchBits += BITS_SIZE<value_type>::value;
                 }
                 auto shiftedRes =
                         static_cast<T>(m_scratch & ((static_cast<SCRATCH_TYPE>(1) << bits) - 1)) << (size - bitsLeft);

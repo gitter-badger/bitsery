@@ -28,9 +28,9 @@ using testing::Eq;
 
 bool SerializeDeserializeContainerSize(SerializationContext& ctx, const size_t size) {
     std::vector<char> t1(size);
-    ctx.createSerializer().container(t1, [](auto ){}, size+1);
+    ctx.createSerializer().container(t1, [](const char& ){}, size+1);
     t1.clear();
-    ctx.createDeserializer().container(t1, [](auto ){}, size+1);
+    ctx.createDeserializer().container(t1, [](char& ){}, size+1);
     return t1.size() == size;
 }
 

@@ -1,5 +1,7 @@
 # Bitsery
 
+> CPP 11 branch
+
 Header only C++ binary serialization library.
 It is designed around the networking requirements for multiplayer real-time fast paced games as first person shooters.
 All cross-platform requirements are enforced at compile time, so serialized data do not store any run-time type information and is as small as possible.

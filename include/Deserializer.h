@@ -40,7 +40,7 @@ namespace bitsery {
 
     template<typename T, typename std::enable_if<std::is_enum<T>::value>::type* = nullptr>
     void setRangeValue(T& v, const RangeSpec<T>& r) {
-        using VT = std::underlying_type_t<T>;
+        using VT = typename std::underlying_type<T>::type ;
         reinterpret_cast<VT&>(v) += static_cast<VT>(r.min);
     };
 
@@ -81,7 +81,7 @@ namespace bitsery {
         template<size_t VSIZE = 0, typename T, typename std::enable_if<std::is_enum<T>::value>::type* = nullptr>
         Deserializer& value(T& v) {
             constexpr size_t ValueSize = VSIZE == 0 ? sizeof(T) : VSIZE;
-            using UT = std::underlying_type_t<T>;
+            using UT = typename std::underlying_type<T>::type ;
             if (_isValid) {
                 _isValid = _reader.template readBytes<ValueSize>(reinterpret_cast<UT&>(v));
             }
@@ -173,7 +173,7 @@ namespace bitsery {
                 if (index)
                     v = expectedValues[index-1];
                 else
-                    ProcessAnyType<ARITHMETIC_OR_ENUM_SIZE<T>>::serialize(*this, v);
+                    ProcessAnyType<ARITHMETIC_OR_ENUM_SIZE<T>::value>::serialize(*this, v);
             }
             return *this;
         };
@@ -248,7 +248,7 @@ namespace bitsery {
             readSize(size, maxSize);
             if (_isValid) {
                 obj.resize(size);
-                procContainer<ARITHMETIC_OR_ENUM_SIZE<typename T::value_type>>(obj);
+                procContainer<ARITHMETIC_OR_ENUM_SIZE<typename T::value_type>::value>(obj);
             }
             return *this;
         }
@@ -275,7 +275,7 @@ namespace bitsery {
 
         template<typename T, size_t N>
         Deserializer&  array(std::array<T,N> &arr) {
-            procContainer<ARITHMETIC_OR_ENUM_SIZE<T>>(arr);
+            procContainer<ARITHMETIC_OR_ENUM_SIZE<T>::value>(arr);
             return *this;
         }
 
@@ -298,11 +298,15 @@ namespace bitsery {
 
         template<typename T, size_t N>
         Deserializer& array(T (&arr)[N]) {
-            procCArray<ARITHMETIC_OR_ENUM_SIZE<T>>(arr);
+            procCArray<ARITHMETIC_OR_ENUM_SIZE<T>::value>(arr);
             return *this;
         }
         bool isValid() const {
             return _isValid;
+        }
+
+        constexpr bool isSerializer() const {
+            return false;
         }
 
     private:

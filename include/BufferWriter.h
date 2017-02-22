@@ -38,13 +38,13 @@ namespace bitsery {
         void writeBytes(const T &) {
             static_assert(std::is_integral<T>(), "");
             static_assert(sizeof(T) == SIZE, "");
-            _bitsCount += BITS_SIZE<T>;
+            _bitsCount += BITS_SIZE<T>::value;
         }
 
         template<typename T>
         void writeBits(const T &, size_t bitsCount) {
             static_assert(std::is_integral<T>() && std::is_unsigned<T>(), "");
-            assert(bitsCount <= BITS_SIZE<T>);
+            assert(bitsCount <= BITS_SIZE<T>::value);
             _bitsCount += bitsCount;
         }
 
@@ -52,7 +52,7 @@ namespace bitsery {
         void writeBuffer(const T *, size_t count) {
             static_assert(std::is_integral<T>(), "");
             static_assert(sizeof(T) == SIZE, "");
-            _bitsCount += BITS_SIZE<T> * count;
+            _bitsCount += BITS_SIZE<T>::value * count;
         }
 
         //get size in bytes
@@ -82,7 +82,7 @@ namespace bitsery {
                 directWrite(&v, 1);
             } else {
                 using UT = typename std::make_unsigned<T>::type;
-                writeBits(reinterpret_cast<const UT &>(v), BITS_SIZE<T>);
+                writeBits(reinterpret_cast<const UT &>(v), BITS_SIZE<T>::value);
             }
         }
 
@@ -97,21 +97,21 @@ namespace bitsery {
                 //todo improve implementation
                 const auto end = buf + count;
                 for (auto it = buf; it != end; ++it)
-                    writeBits(reinterpret_cast<const UT &>(*it), BITS_SIZE<T>);
+                    writeBits(reinterpret_cast<const UT &>(*it), BITS_SIZE<T>::value);
             }
         }
 
         template<typename T>
         void writeBits(const T &v, size_t bitsCount) {
             static_assert(std::is_integral<T>() && std::is_unsigned<T>(), "");
-            assert(bitsCount <= BITS_SIZE<T>);
+            assert(bitsCount <= BITS_SIZE<T>::value);
             assert(v <= ((1ULL << bitsCount) - 1));
             writeBitsInternal(v, bitsCount);
         }
 
         void align() {
             if (m_scratchBits)
-                writeBitsInternal(value_type{}, BITS_SIZE<value_type> - m_scratchBits);
+                writeBitsInternal(value_type{}, BITS_SIZE<value_type>::value - m_scratchBits);
         }
 
         void flush() {
@@ -139,16 +139,16 @@ namespace bitsery {
             auto value = v;
             auto bitsLeft = size;
             while (bitsLeft > 0) {
-                auto bits = std::min(bitsLeft, BITS_SIZE<value_type>);
+                auto bits = std::min(bitsLeft, BITS_SIZE<value_type>::value);
                 m_scratch |= static_cast<SCRATCH_TYPE>( value ) << m_scratchBits;
                 m_scratchBits += bits;
-                if (m_scratchBits >= BITS_SIZE<value_type>) {
+                if (m_scratchBits >= BITS_SIZE<value_type>::value) {
                     auto tmp = static_cast<value_type>(m_scratch & bufTypeMask);
                     directWrite(&tmp, 1);
-                    m_scratch >>= BITS_SIZE<value_type>;
-                    m_scratchBits -= BITS_SIZE<value_type>;
+                    m_scratch >>= BITS_SIZE<value_type>::value;
+                    m_scratchBits -= BITS_SIZE<value_type>::value;
 
-                    value >>= BITS_SIZE<value_type>;
+                    value >>= BITS_SIZE<value_type>::value;
                 }
                 bitsLeft -= bits;
             }
@@ -157,11 +157,11 @@ namespace bitsery {
             if (size > 0) {
                 m_scratch |= static_cast<SCRATCH_TYPE>( v ) << m_scratchBits;
                 m_scratchBits += size;
-                if (m_scratchBits >= BITS_SIZE<value_type>) {
+                if (m_scratchBits >= BITS_SIZE<value_type>::value) {
                     auto tmp = static_cast<value_type>(m_scratch & bufTypeMask);
                     directWrite(&tmp, 1);
-                    m_scratch >>= BITS_SIZE<value_type>;
-                    m_scratchBits -= BITS_SIZE<value_type>;
+                    m_scratch >>= BITS_SIZE<value_type>::value;
+                    m_scratchBits -= BITS_SIZE<value_type>::value;
                 }
             }
         }

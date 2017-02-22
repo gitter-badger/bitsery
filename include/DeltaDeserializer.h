@@ -128,6 +128,10 @@ namespace bitsery {
             return *this;
         }
 
+        constexpr bool isSerializer() const {
+            return false;
+        }
+
     private:
         Deserializer <Reader> _deserializer;
         Reader &_reader;

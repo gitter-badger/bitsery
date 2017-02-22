@@ -30,7 +30,9 @@
 namespace bitsery {
 
     template<typename T>
-    constexpr size_t BITS_SIZE = sizeof(T) << 3;
+    struct BITS_SIZE:std::integral_constant<size_t, sizeof(T) << 3> {
+    };
+    //constexpr size_t  = sizeof(T) << 3;
 
     template<typename T>
     struct BIGGER_TYPE {
@@ -72,22 +74,24 @@ namespace bitsery {
     };
 
     template<typename T>
-    constexpr size_t ARITHMETIC_OR_ENUM_SIZE = std::is_arithmetic<T>::value || std::is_enum<T>::value ? sizeof(T) : 0;
+    struct ARITHMETIC_OR_ENUM_SIZE:std::integral_constant<size_t,
+            std::is_arithmetic<T>::value || std::is_enum<T>::value ? sizeof(T) : 0> {
+    };
 
 
     template<typename T, typename Enable = void>
     struct SAME_SIZE_UNSIGNED_TYPE {
-        typedef std::make_unsigned_t<T> type;
+        typedef typename std::make_unsigned<T>::type type;
     };
 
     template<typename T>
     struct SAME_SIZE_UNSIGNED_TYPE<T, typename std::enable_if<std::is_enum<T>::value>::type> {
-        typedef std::make_unsigned_t<std::underlying_type_t<T>> type;
+        typedef typename std::make_unsigned<typename std::underlying_type<T>::type>::type type;
     };
 
     template<typename T>
     struct SAME_SIZE_UNSIGNED_TYPE<T, typename std::enable_if<std::is_floating_point<T>::value>::type> {
-        typedef std::conditional_t<std::is_same<T, float>::value, uint32_t, uint64_t> type;
+        typedef typename std::conditional<std::is_same<T, float>::value, uint32_t, uint64_t>::type type;
     };
 
     template<typename T>
@@ -119,12 +123,17 @@ S& serialize(S& s, T& o)
  * range functions
  */
 
+    constexpr size_t numberOfBits(size_t x)
+    {
+        return x < 2 ? x : 1+numberOfBits(x >> 1);
+    }
     template<typename T>
     constexpr size_t calcRequiredBits(T min, T max) {
-        size_t res{};
-        for (auto diff = max - min; diff > 0; diff >>= 1)
-            ++res;
-        return res;
+        return numberOfBits(max - min);
+//        size_t res{};
+//        for (auto diff = max - min; diff > 0; diff >>= 1)
+//            ++res;
+//        return res;
     }
 
 
@@ -150,8 +159,8 @@ S& serialize(S& s, T& o)
                 min{minValue},
                 max{maxValue},
                 bitsRequired{calcRequiredBits(
-                        static_cast<std::underlying_type_t<T>>(min),
-                        static_cast<std::underlying_type_t<T>>(max))} {
+                        static_cast<typename std::underlying_type<T>::type>(min),
+                        static_cast<typename std::underlying_type<T>::type>(max))} {
         }
 
         const T min;
@@ -194,7 +203,7 @@ S& serialize(S& s, T& o)
 
     template<typename T, typename std::enable_if<std::is_enum<T>::value>::type * = nullptr>
     bool isRangeValid(const T &v, const RangeSpec<T> &r) {
-        using VT = std::underlying_type_t<T>;
+        using VT = typename std::underlying_type<T>::type;
         return !(static_cast<VT>(r.min) > static_cast<VT>(v)
                  || static_cast<VT>(v) > static_cast<VT>(r.max));
     }

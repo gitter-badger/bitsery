@@ -78,12 +78,12 @@ TEST(SerializeFSArrayStdArray, CustomFunctionThatSerializesAnEmptyByteEveryEleme
 
 
     auto ser = ctx.createSerializer();
-    ser.array(src, [&ser](auto& v) {
+    ser.array(src, [&ser](const MyStruct1& v) {
         char tmp{};
         ser.object(v).value(tmp);
     });
     auto des = ctx.createDeserializer();
-    des.array(res, [&des](auto& v) {
+    des.array(res, [&des](MyStruct1& v) {
         char tmp{};
         des.object(v).value(tmp);
     });
@@ -143,12 +143,12 @@ TEST(SerializeFSArrayCArray, CustomFunctionThatSerializesAnEmptyByteEveryElement
 
 
     auto ser = ctx.createSerializer();
-    ser.array(src, [&ser](auto& v) {
+    ser.array(src, [&ser](const MyStruct1& v) {
         char tmp{};
         ser.object(v).value(tmp);
     });
     auto des = ctx.createDeserializer();
-    des.array(res, [&des](auto& v) {
+    des.array(res, [&des](MyStruct1& v) {
         char tmp{};
         des.object(v).value(tmp);
     });

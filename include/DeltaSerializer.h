@@ -127,6 +127,10 @@ namespace bitsery {
             return *this;
         }
 
+        constexpr bool isSerializer() const {
+            return true;
+        }
+
     private:
         Serializer <Writter> _serializer;
         Writter &_writter;

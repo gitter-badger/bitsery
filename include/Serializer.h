@@ -35,17 +35,17 @@ namespace bitsery {
  */
 
     template<typename T, typename std::enable_if<std::is_integral<T>::value>::type * = nullptr>
-    auto getRangeValue(const T &v, const RangeSpec<T> &r) {
+    SAME_SIZE_UNSIGNED<T> getRangeValue(const T &v, const RangeSpec<T> &r) {
         return static_cast<SAME_SIZE_UNSIGNED<T>>(v - r.min);
     };
 
     template<typename T, typename std::enable_if<std::is_enum<T>::value>::type * = nullptr>
-    auto getRangeValue(const T &v, const RangeSpec<T> &r) {
+    SAME_SIZE_UNSIGNED<T> getRangeValue(const T &v, const RangeSpec<T> &r) {
         return static_cast<SAME_SIZE_UNSIGNED<T>>(v) - static_cast<SAME_SIZE_UNSIGNED<T>>(r.min);
     };
 
     template<typename T, typename std::enable_if<std::is_floating_point<T>::value>::type * = nullptr>
-    auto getRangeValue(const T &v, const RangeSpec<T> &r) {
+    SAME_SIZE_UNSIGNED<T> getRangeValue(const T &v, const RangeSpec<T> &r) {
         using VT = SAME_SIZE_UNSIGNED<T>;
         const VT maxUint = (static_cast<VT>(1) << r.bitsRequired) - 1;
         const auto ratio = (v - r.min) / (r.max - r.min);
@@ -58,7 +58,7 @@ namespace bitsery {
 
     template<typename T, size_t N>
     size_t findSubstitutionIndex(const T &v, const std::array<T, N> &defValues) {
-        auto index{1u};
+        size_t index{1u};
         for (auto &d:defValues) {
             if (d == v)
                 return index;
@@ -97,7 +97,7 @@ namespace bitsery {
         template<size_t VSIZE = 0, typename T, typename std::enable_if<std::is_enum<T>::value>::type * = nullptr>
         Serializer& value(const T &v) {
             constexpr size_t ValueSize = VSIZE == 0 ? sizeof(T) : VSIZE;
-            _writter.template writeBytes<ValueSize>(reinterpret_cast<const std::underlying_type_t<T> &>(v));
+            _writter.template writeBytes<ValueSize>(reinterpret_cast<const typename std::underlying_type<T>::type &>(v));
             return *this;
         }
 
@@ -159,7 +159,7 @@ namespace bitsery {
             auto index = findSubstitutionIndex(v, expectedValues);
             range(index, {{}, N +1});
             if (!index)
-                ProcessAnyType<ARITHMETIC_OR_ENUM_SIZE<T>>::serialize(*this, v);
+                ProcessAnyType<ARITHMETIC_OR_ENUM_SIZE<T>::value>::serialize(*this, v);
             return *this;
         };
 
@@ -205,7 +205,7 @@ namespace bitsery {
         Serializer& container(const T &obj, size_t maxSize) {
             assert(obj.size() <= maxSize);
             writeSize(obj.size());
-            procContainer<ARITHMETIC_OR_ENUM_SIZE<typename T::value_type>>(obj);
+            procContainer<ARITHMETIC_OR_ENUM_SIZE<typename T::value_type>::value>(obj);
             return *this;
         }
 
@@ -230,7 +230,7 @@ namespace bitsery {
 
         template<typename T, size_t N>
         Serializer& array(const std::array<T, N> &arr) {
-            procContainer<ARITHMETIC_OR_ENUM_SIZE<T>>(arr);
+            procContainer<ARITHMETIC_OR_ENUM_SIZE<T>::value>(arr);
             return *this;
         }
 
@@ -252,8 +252,12 @@ namespace bitsery {
 
         template<typename T, size_t N>
         Serializer& array(const T (&arr)[N]) {
-            procCArray<ARITHMETIC_OR_ENUM_SIZE<T>>(arr);
+            procCArray<ARITHMETIC_OR_ENUM_SIZE<T>::value>(arr);
             return *this;
+        }
+
+        constexpr bool isSerializer() const {
+            return true;
         }
 
     private:

@@ -79,7 +79,7 @@ class SerializationContext {
     std::unique_ptr<bitsery::BufferReader> br;
 public:
     bitsery::Serializer<bitsery::BufferWriter> createSerializer() {
-        bw = std::make_unique<bitsery::BufferWriter>(buf);
+        bw = std::unique_ptr<bitsery::BufferWriter>(new bitsery::BufferWriter(buf));
         return {*bw};
     };
 
@@ -98,7 +98,7 @@ public:
 
     bitsery::Deserializer<bitsery::BufferReader> createDeserializer() {
         bw->flush();
-        br = std::make_unique<bitsery::BufferReader>(buf);
+        br = std::unique_ptr<bitsery::BufferReader>(new bitsery::BufferReader(buf));
         return {*br};
     };
 };

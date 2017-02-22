@@ -28,24 +28,24 @@ using bitsery::RangeSpec;
 using bitsery::BitsConstraint;
 
 TEST(SerializeRange, RequiredBitsIsConstexpr) {
-    constexpr RangeSpec<int> r1{0, 31};
-    static_assert(r1.bitsRequired == 5);
-
-    constexpr RangeSpec<MyEnumClass> r2{MyEnumClass::E1, MyEnumClass::E4};
-    static_assert(r2.bitsRequired == 2);
-
-    constexpr RangeSpec<double> r3{-1.0,1.0, BitsConstraint{5u}};
-    //EXPECT_THAT(r1.bitsRequired, Eq(5));
-    static_assert(r3.bitsRequired == 5);
-
-    constexpr RangeSpec<float> r4{-1.0f,1.0f, 0.01f};
-    static_assert(r4.bitsRequired == 8);
+//    constexpr RangeSpec<int> r1{0, 31};
+//    static_assert(r1.bitsRequired == 5, "");
+//
+//    constexpr RangeSpec<MyEnumClass> r2{MyEnumClass::E1, MyEnumClass::E4};
+//    static_assert(r2.bitsRequired == 2, "");
+//
+//    constexpr RangeSpec<double> r3{-1.0,1.0, BitsConstraint{5u}};
+//    //EXPECT_THAT(r1.bitsRequired, Eq(5));
+//    static_assert(r3.bitsRequired == 5, "");
+//
+//    constexpr RangeSpec<float> r4{-1.0f,1.0f, 0.01f};
+//    static_assert(r4.bitsRequired == 8, "");
 
 }
 
 TEST(SerializeRange, IntegerNegative) {
     SerializationContext ctx;
-    constexpr RangeSpec<int> r1{-50, 50};
+    RangeSpec<int> r1{-50, 50};
     int t1{-8};
     int res1;
 
@@ -59,7 +59,7 @@ TEST(SerializeRange, IntegerNegative) {
 
 TEST(SerializeRange, IntegerPositive) {
     SerializationContext ctx;
-    constexpr RangeSpec<unsigned> r1{4, 10};
+    RangeSpec<unsigned> r1{4, 10};
     unsigned t1{8};
     unsigned res1;
 
@@ -73,7 +73,7 @@ TEST(SerializeRange, IntegerPositive) {
 
 TEST(SerializeRange, EnumTypes) {
     SerializationContext ctx;
-    constexpr RangeSpec<MyEnumClass> r1{MyEnumClass::E2, MyEnumClass::E4};
+    RangeSpec<MyEnumClass> r1{MyEnumClass::E2, MyEnumClass::E4};
     MyEnumClass t1{MyEnumClass::E2};
     MyEnumClass res1;
 
@@ -91,7 +91,7 @@ TEST(SerializeRange, FloatUsingPrecisionConstraint1) {
     constexpr float min{-1.0f};
     constexpr float max{1.0f};
     float t1{0.5f};
-    constexpr RangeSpec<float> r1{min, max, precision};
+    RangeSpec<float> r1{min, max, precision};
 
     float res1;
 
@@ -108,7 +108,7 @@ TEST(SerializeRange, DoubleUsingPrecisionConstraint2) {
     constexpr double min{50.0};
     constexpr double max{100000.0};
     double t1{38741.0};
-    constexpr RangeSpec<double> r1{min, max, precision};
+    RangeSpec<double> r1{min, max, precision};
 
     double res1;
 
@@ -125,7 +125,7 @@ TEST(SerializeRange, FloatUsingBitsSizeConstraint1) {
     constexpr float min{-1.0f};
     constexpr float max{1.0f};
     float t1{0.5f};
-    constexpr RangeSpec<float> r1{min, max, BitsConstraint(bits)};
+    RangeSpec<float> r1{min, max, BitsConstraint(bits)};
 
     float res1;
 
@@ -142,7 +142,7 @@ TEST(SerializeRange, DoubleUsingBitsSizeConstraint2) {
     constexpr double min{50.0};
     constexpr double max{100000.0};
     double t1{38741};
-    constexpr RangeSpec<double> r1{min, max, BitsConstraint(bits)};
+    RangeSpec<double> r1{min, max, BitsConstraint(bits)};
 
     double res1;
 

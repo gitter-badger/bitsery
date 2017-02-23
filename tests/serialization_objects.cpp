@@ -22,9 +22,7 @@
 
 
 #include <gmock/gmock.h>
-#include "SerializationTestUtils.h"
-
-#include <list>
+#include "serialization_test_utils.h"
 
 using testing::Eq;
 using testing::StrEq;

@@ -10,10 +10,9 @@ before_install:
   - sudo apt-get update -qq
 
 install: 
-  # C++14
-  - sudo apt-get install -qq g++-6 lcov
-  - sudo update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-6 90
-  - sudo update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-6 90
+  - sudo apt-get install -qq g++-7 lcov
+  - sudo update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-7 90
+  - sudo update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-7 90
 
 before_script:
   - mkdir build

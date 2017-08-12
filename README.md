@@ -1,3 +1,4 @@
+[![Build Status](https://travis-ci.org/fraillt/bitsery.svg?branch=test)](https://travis-ci.org/fraillt/bitsery)
 # Bitsery
 
 Header only C++ binary serialization library.
